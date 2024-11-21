@@ -1,7 +1,6 @@
 package Agents;
 
 import Main.Enterprise;
-import java.util.Random;
 
 /**
  *
@@ -10,7 +9,7 @@ import java.util.Random;
 //This Agent Blasts for x Second, Rests for x Second.
 public class DummyAgent {
 
-    private Enterprise prise;
+    private final Enterprise prise;
 
     private boolean canRun;
 

@@ -17,7 +17,7 @@ public class GeneticAgent implements Comparable<GeneticAgent> {
 
     private double score;
 
-    private Enterprise ship;
+    private final Enterprise ship;
 
     public GeneticAgent(Enterprise ship, int length, double mutationRate) {
         chromosome = new int[length];
@@ -100,13 +100,6 @@ public class GeneticAgent implements Comparable<GeneticAgent> {
 
     public void determineScore() {
         this.score = ((ship.getTerminalVelocity() - (ship.getLandingSpeed() < 1.5 ? 0 : ship.getLandingSpeed())) * 15) + (ship.getFuel() * 0.55);
-
-//        System.out.println("TV: " + ship.getTerminalVelocity()
-//                + "\nLanding: " + ship.getLandingSpeed()
-//                + "\nFuel: " + ship.getFuel()
-//                + "\nSuccess: " + ship.isSuccess()
-//                + "\nScore: " + score + "\n\n");
-//        this.score *= ship.isSuccess() ? 1.0 : 0.8;
     }
 
     public Enterprise getShip() {

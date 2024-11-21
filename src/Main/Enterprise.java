@@ -31,10 +31,6 @@ public class Enterprise extends ImageView {
     private double terminalVelocity;
     private double maxUpSpeed;
 
-    private final double width;
-    private final double height;
-    private final double x, y;
-
     private double landingSpeed;
 
     public Enterprise(Pane p, double width, double height, double x, double y) {
@@ -61,11 +57,6 @@ public class Enterprise extends ImageView {
         this.setFitHeight(height);
         this.setX(x);
         this.setY(y);
-
-        this.width = width;
-        this.height = height;
-        this.x = x;
-        this.y = y;
     }
 
     public double getSpeed() {

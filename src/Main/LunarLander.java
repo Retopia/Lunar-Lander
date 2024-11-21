@@ -42,6 +42,9 @@ public class LunarLander extends Application {
     private final double mutationRate = 0.07;
     private final double gravity = 9.8 / 1.4;
 
+    private long lastTime = System.nanoTime();
+    private boolean isResetting = false;
+
     @Override
     public void start(Stage stage) {
         Pane base = new Pane();
@@ -60,7 +63,7 @@ public class LunarLander extends Application {
         //Old background color was #1c1b1b
         Scene scene = new Scene(base, 1185, 600);
 
-        stage.setTitle("20-LunarLander By Preston Tang - Surface & Background Graphics By Emily Kao <3");
+        stage.setTitle("LunarLander");
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
@@ -115,16 +118,10 @@ public class LunarLander extends Application {
         generationDisplay.setX(3);
         generationDisplay.setY(580);
 
-//        DummyAgent[] das = new DummyAgent[7];
-//
-//        for (int i = 0; i < das.length; i++) {
-//            das[i] = new DummyAgent(ships[i + 1]);
-//        }
         GeneticAgent[] gas = new GeneticAgent[8];
 
         for (int i = 0; i < gas.length; i++) {
             gas[i] = new GeneticAgent(ships[i], geneNumber, mutationRate);
-//            gas[i].randomize();
             System.out.println(Arrays.toString(gas[i].getGenes()));
         }
 
@@ -159,6 +156,12 @@ public class LunarLander extends Application {
         AnimationTimer animator = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (isResetting) {
+                    return;  // Skip physics updates during reset
+                }
+                double deltaTime = (now - lastTime) / 1_000_000_000.0;
+                lastTime = now;
+
                 for (int i = 0; i < ships.length; i++) {
                     if (!ships[i].finished) {
                         if (!(ships[i].getFuel() <= 0.0)) {
@@ -180,11 +183,11 @@ public class LunarLander extends Application {
                             }
 
                             //Gravity accounted for frame loss
-                            ships[i].setSpeed(ships[i].getSpeed() + (ships[i].getGravity() / 60));
+                            ships[i].setSpeed(ships[i].getSpeed() + (ships[i].getGravity() * deltaTime));
                             if (ships[i].getSpeed() > ships[i].getTerminalVelocity()) {
                                 ships[i].setSpeed(ships[i].getTerminalVelocity());
                             }
-                            ships[i].setY(ships[i].getY() + ships[i].getSpeed());
+                            ships[i].setY(ships[i].getY() + (ships[i].getSpeed() * deltaTime * 60));
                         } else {
                             ships[i].setBlasting(false);
 
@@ -212,11 +215,11 @@ public class LunarLander extends Application {
                             }
 
                             //Gravity accounted for frame loss
-                            ships[i].setSpeed(ships[i].getSpeed() + (ships[i].getGravity() / 60));
+                            ships[i].setSpeed(ships[i].getSpeed() + (ships[i].getGravity() * deltaTime));
                             if (ships[i].getSpeed() > ships[i].getTerminalVelocity()) {
                                 ships[i].setSpeed(ships[i].getTerminalVelocity());
                             }
-                            ships[i].setY(ships[i].getY() + ships[i].getSpeed());
+                            ships[i].setY(ships[i].getY() + (ships[i].getSpeed() * deltaTime * 60));
                         }
 
                         //Activate Agent Stuff
@@ -237,8 +240,8 @@ public class LunarLander extends Application {
                             if (ships[i].getSpeed() < -ships[i].getMaxSpeed()) {
                                 ships[i].setSpeed(-ships[i].getMaxSpeed());
                             } else {
-                                ships[i].setSpeed(ships[i].getSpeed() - 0.2);
-                                ships[i].setFuel(ships[i].getFuel() - 0.2);
+                                ships[i].setSpeed(ships[i].getSpeed() - (12.0 * deltaTime)); // 0.2 * 60 = 12 units per second
+                                ships[i].setFuel(ships[i].getFuel() - (12.0 * deltaTime));
                             }
                         }
                     }
@@ -273,6 +276,8 @@ public class LunarLander extends Application {
                     gas[1].getShip().getInfoBar().getScoreUI().setFill(Color.DEEPSKYBLUE);
 
                     Platform.runLater(() -> {
+                        isResetting = true;  // Pause physics updates
+
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException ex) {
@@ -310,10 +315,14 @@ public class LunarLander extends Application {
                         background.toBack();
                         generationDisplay.toFront();
                         base.getChildren().addAll(borders);
+
+                        lastTime = System.nanoTime();
+                        isResetting = false;
                     });
                 }
             }
         };
+
         animator.start();
     }
 
@@ -321,7 +330,7 @@ public class LunarLander extends Application {
         try {
             System.setProperty("javafx.animation.pulse", "60");
         } catch (AccessControlException e) {
-            
+
         }
         launch(args);
     }
